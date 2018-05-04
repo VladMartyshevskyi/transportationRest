@@ -1,61 +1,67 @@
 package com.transportations.restapi.controllers;
 
 import com.transportations.restapi.models.Route;
-import com.transportations.restapi.repositories.RouteRepository;
+import com.transportations.restapi.services.RouteService;
+import com.transportations.restapi.utils.EmptyJsonResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class RouteController {
+
     @Autowired
-    RouteRepository routeRepository;
+    private RouteService routeService;
 
     @RequestMapping(method = RequestMethod.GET, value = "/routes")
-    public Iterable<Route> routes(){
-        return routeRepository.findAll();
-    }
-
-    @RequestMapping(method = RequestMethod.POST, value = "/routes")
-    public String save(@RequestBody Route route){
-        routeRepository.save(route);
-        return route.getId();
+    public ResponseEntity getAllRoutes(){
+        List<Route> routes = routeService.getAllRoutes();
+        if(routes.isEmpty()){
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity(routes, HttpStatus.OK);
+        }
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/routes/{id}")
-    public Route showById(@PathVariable String id) {
-        return routeRepository.findById(id).get();
+    public ResponseEntity getRouteById(@PathVariable String id) {
+        Route route = routeService.getRouteById(id);
+        if(route == null){
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity(route, HttpStatus.OK);
+        }
     }
 
     @RequestMapping(method=RequestMethod.GET, value="/routes/{from}/{to}")
-    public List<Route> showByFromTo(@PathVariable String from, @PathVariable String to) {
-        return routeRepository.findByFromAndTo(from, to);
+    public ResponseEntity getRouteByFromTo(@PathVariable String from, @PathVariable String to) {
+        List<Route> routes = routeService.getRoutesByFromAndTo(from, to);
+        if(routes.isEmpty()){
+            return new ResponseEntity(new EmptyJsonResponse(), HttpStatus.OK);
+        }
+        else{
+            return new ResponseEntity<>(routes, HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/routes")
+    public void addRoute(@RequestBody Route route){
+        routeService.addRoute(route);
     }
 
     @RequestMapping(method=RequestMethod.PUT, value="/routes/{id}")
-    public Route update(@PathVariable String id, @RequestBody Route requestRoute) {
-        Optional<Route> optionalRoute = routeRepository.findById(id);
-
-        if(optionalRoute.isPresent()) {
-            Route route = optionalRoute.get();
-            if(requestRoute.getFrom() != null)
-                route.setFrom(requestRoute.getFrom());
-            if(requestRoute.getTo() != null)
-                route.setTo(requestRoute.getTo());
-            if(requestRoute.getPrice() != null)
-                route.setPrice(requestRoute.getPrice());
-            route.setDurationInMinutes(requestRoute.getDurationInMinutes());
-            routeRepository.save(route);
-            return route;
-        }
-        return null;
+    public ResponseEntity updateRoute(@PathVariable String id, @RequestBody Route requestRoute) {
+       routeService.updateRoute(id, requestRoute);
+       return new ResponseEntity(HttpStatus.OK);
     }
 
     @RequestMapping(method=RequestMethod.DELETE, value="/routes/{id}")
-    public String delete(@PathVariable String id) {
-        Route route = routeRepository.findById(id).get();
-        routeRepository.delete(route);
-        return "route deleted";
+    public ResponseEntity deleteRoute(@PathVariable String id) {
+        routeService.deleteRoute(id);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

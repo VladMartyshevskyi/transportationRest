@@ -7,6 +7,4 @@ import java.util.List;
 public interface RouteRepository extends MongoRepository<Route, String> {
 
     List<Route> findByFromAndTo(String from, String to);
-
 }
-
