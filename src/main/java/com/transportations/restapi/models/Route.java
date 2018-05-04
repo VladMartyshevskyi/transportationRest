@@ -3,6 +3,8 @@ package com.transportations.restapi.models;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Objects;
+
 @Document(collection = "routes")
 public class Route {
 
@@ -62,5 +64,23 @@ public class Route {
 
     public void setDurationInMinutes(int durationInMinutes) {
         this.durationInMinutes = durationInMinutes;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Route route = (Route) o;
+        return durationInMinutes == route.durationInMinutes &&
+                Objects.equals(id, route.id) &&
+                Objects.equals(from, route.from) &&
+                Objects.equals(to, route.to) &&
+                Objects.equals(price, route.price);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, from, to, price, durationInMinutes);
     }
 }

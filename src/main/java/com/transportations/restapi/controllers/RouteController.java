@@ -49,8 +49,9 @@ public class RouteController {
     }
 
     @RequestMapping(method = RequestMethod.POST, value = "/routes")
-    public void addRoute(@RequestBody Route route){
+    public ResponseEntity addRoute(@RequestBody Route route){
         routeService.addRoute(route);
+        return new ResponseEntity(HttpStatus.OK);
     }
 
     @RequestMapping(method=RequestMethod.PUT, value="/routes/{id}")
